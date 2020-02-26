@@ -160,6 +160,10 @@ const parseNodeToMysql = (args) => {
         if (!error) {
             switch (typeof (arg)) {
                 case 'string':
+                    arg = arg.replace(`"`, `\\"`);
+                    arg = arg.replace(`'`, `\\'`);
+                    arg = arg.replace(`\``, `\\\``);
+                    arg = arg.replace(`\´`, `\\´`);
                     str += `${comma}"${arg}"`;
                     break;
                 case 'number':
@@ -231,6 +235,13 @@ const queryProcedure = async (...args) => {
  */
 
 const rawQuery = async (str) => {
+    //Quitar comillas
+    console.log("Primer comilla: " + str);
+    str = str.replace(`"`, `\\\"`);
+    str = str.replace(`'`, `\\\\'`);
+    str = str.replace(`´`, `\\\\´`);
+    str = str.replace(`\``, `\\\\\``);
+    console.log("STRING: " + str);
     return new Promise((resolve, reject) => {
         db.promise().query(str).then((res) => {
             resolve(res[0]);
