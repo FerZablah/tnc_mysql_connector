@@ -236,12 +236,11 @@ const queryProcedure = async (...args) => {
 
 const rawQuery = async (str) => {
     //Quitar comillas
-    console.log("Primer comilla: " + str);
+    /*
     str = str.replace(`"`, `\\\"`);
     str = str.replace(`'`, `\\\\'`);
     str = str.replace(`´`, `\\\\´`);
-    str = str.replace(`\``, `\\\\\``);
-    console.log("STRING: " + str);
+    str = str.replace(`\``, `\\\\\``);*/
     return new Promise((resolve, reject) => {
         db.promise().query(str).then((res) => {
             resolve(res[0]);
