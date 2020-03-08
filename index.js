@@ -149,7 +149,9 @@ const connect = async (ssh = sshDefault, MySQL = MySQLDefault) => {
     });
 }
 
-
+const replaceAll = (str, find, replace) => {
+    return str.replace(new RegExp(find, 'g'), replace);
+}
 const parseNodeToMysql = (args) => {
     let str = '';
     let comma = '';
@@ -160,10 +162,11 @@ const parseNodeToMysql = (args) => {
         if (!error) {
             switch (typeof (arg)) {
                 case 'string':
-                    arg = arg.replace(`"`, `\\"`);
-                    arg = arg.replace(`'`, `\\'`);
-                    arg = arg.replace(`\``, `\\\``);
-                    arg = arg.replace(`\´`, `\\´`);
+                    arg = replaceAll(arg, `"`, `\\"`);
+                    arg = replaceAll(arg, `'`, `\\'`);
+                    arg = replaceAll(arg, `\``, `\\\``);
+                    arg = replaceAll(arg, `\´`, `\\´`);
+                    console.log(arg);
                     str += `${comma}"${arg}"`;
                     break;
                 case 'number':
@@ -235,12 +238,6 @@ const queryProcedure = async (...args) => {
  */
 
 const rawQuery = async (str) => {
-    //Quitar comillas
-    /*
-    str = str.replace(`"`, `\\\"`);
-    str = str.replace(`'`, `\\\\'`);
-    str = str.replace(`´`, `\\\\´`);
-    str = str.replace(`\``, `\\\\\``);*/
     return new Promise((resolve, reject) => {
         db.promise().query(str).then((res) => {
             resolve(res[0]);
