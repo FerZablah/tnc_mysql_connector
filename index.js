@@ -166,7 +166,6 @@ const parseNodeToMysql = (args) => {
                     arg = replaceAll(arg, `'`, `\\'`);
                     arg = replaceAll(arg, `\``, `\\\``);
                     arg = replaceAll(arg, `\´`, `\\´`);
-                    console.log(arg);
                     str += `${comma}"${arg}"`;
                     break;
                 case 'number':
