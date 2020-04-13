@@ -2,9 +2,11 @@ const mysqlssh = require("mysql-ssh");
 const mysql = require("mysql2");
 const _ = require('lodash');
 let db;
-const fs = require('fs')
 const ora = require('ora');
 const moment = require('moment');
+
+const _NULL = '______NULL______';
+
 const getMySQLProcedures = () => {
     let base_url = process.cwd() + '/proceduresMethods/';
     let files;
@@ -162,11 +164,14 @@ const parseNodeToMysql = (args) => {
         if (!error) {
             switch (typeof (arg)) {
                 case 'string':
-                    arg = replaceAll(arg, `"`, `\\"`);
-                    arg = replaceAll(arg, `'`, `\\'`);
-                    arg = replaceAll(arg, `\``, `\\\``);
-                    arg = replaceAll(arg, `\´`, `\\´`);
-                    str += `${comma}"${arg}"`;
+                    if(arg === _NULL) str += `${comma}null`;
+                    else{
+                        arg = replaceAll(arg, `"`, `\\"`);
+                        arg = replaceAll(arg, `'`, `\\'`);
+                        arg = replaceAll(arg, `\``, `\\\``);
+                        arg = replaceAll(arg, `\´`, `\\´`);
+                        str += `${comma}"${arg}"`;
+                    }
                     break;
                 case 'number':
                     str += `${comma}${arg}`;
@@ -179,9 +184,9 @@ const parseNodeToMysql = (args) => {
                     error = 'Error: You tried to send an undefined value to MySQL Procedure\nParameter: ' + args;
                     break;
                 case 'object':
-                    if(arg.constructor.name === 'Moment') str += `${comma}"${arg.format('YYYY-MM-DD HH:mm:ss')}"`;
+                    if (arg === null) error = new Error('Error: You tried to send a null value to MySQL Procedure\nParameter: ' + args);
+                    else if(arg.constructor.name === 'Moment') str += `${comma}"${arg.format('YYYY-MM-DD HH:mm:ss')}"`;
                     else if (arg != null && arg.constructor.name === "Object") error = new Error('Error: You tried to send an object value to MySQL Procedure\nParameter: ' + args);
-                    else if (arg === null) error = new Error('Error: You tried to send a null value to MySQL Procedure\nParameter: ' + args);
                     else error = new Error('Error: You tried to send an array value to MySQL Procedure\nParameter: ' + args);
                     break;
                 default:
@@ -272,5 +277,6 @@ module.exports = {
     queryProcedure,
     rawQuery,
     emptyTestDatabase,
-    procedures: getMySQLProcedures()
+    procedures: getMySQLProcedures(),
+    _NULL
 };
