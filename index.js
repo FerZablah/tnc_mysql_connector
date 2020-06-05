@@ -99,15 +99,23 @@ const connectRaw = async (MySQL = MySQLDefault) => {
                 return next();
             }
         });
-        connection.connect(function(err) {
+        connection.connect((err) => {
             if (err) {
                 console.error('error connecting: ' + err.stack);
+                setTimeout(connectRaw(MySQL), 2000);
                 reject(err.stack);
-                return;
-            }
+            };
             db = connection;
             spinner.succeed(`Connected successfully to ${MySQL.database} MySQL database without SSH`);
             resolve();
+        });
+        connection.on('error', (err) => {
+            console.log('db error', err);
+            if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+                connectRaw(MySQL);                         // lost due to either server restart, or a
+            } else {                                      // connnection idle timeout (the wait_timeout
+              throw err;                                  // server variable configures this)
+            }
         });
     });
 }
