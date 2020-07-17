@@ -1,6 +1,6 @@
 {
   "name": "tnc_mysql_connector",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "MySQL connector with ssh tunnel and dynamic procedure methos loader",
   "main": "index.js",
   "scripts": {
