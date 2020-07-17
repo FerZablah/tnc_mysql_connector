@@ -84,7 +84,10 @@ const connectRaw = async (MySQL = MySQLDefault) => {
             user: MySQL.user,
             database: MySQL.database,
             password: MySQL.password,
-            typeCast: function (field, next) {                    
+            typeCast: function (field, next) { 
+                if(field.type === 'LONGLONG' && field.length === 1){
+                    return field.string() === '1';
+                }                    
                 if(field.type === 'BIT'){          
                     return field.buffer().readUIntLE(0, 1) === 1;                        
                 }   
@@ -132,7 +135,10 @@ const connect = async (ssh = sshDefault, MySQL = MySQLDefault) => {
         mysqlssh
             .connect(ssh, {
                 ...MySQL,
-                typeCast: function (field, next) {                    
+                typeCast: function (field, next) {     
+                    if(field.type === 'LONGLONG' && field.length === 1){
+                        return field.string() === '1';
+                    }           
                     if(field.type === 'BIT'){          
                         return field.buffer().readUIntLE(0, 1) === 1;                        
                     }   
