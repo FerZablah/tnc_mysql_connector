@@ -79,15 +79,15 @@ const connectRaw = async (MySQL = MySQLDefault) => {
     }).start();
     spinner.color = 'blue';
     return new Promise((resolve, reject) => {
-        const connection = mysql.createConnection({
+        const pool = mysql.createPool({
             host: MySQL.host,
             user: MySQL.user,
             database: MySQL.database,
             password: MySQL.password,
-            typeCast: function (field, next) { 
-                if(field.type === 'LONGLONG' && field.length === 1){
-                    return field.string() === '1';
-                }                    
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0,
+            typeCast: function (field, next) {                    
                 if(field.type === 'BIT'){          
                     return field.buffer().readUIntLE(0, 1) === 1;                        
                 }   
@@ -102,22 +102,14 @@ const connectRaw = async (MySQL = MySQLDefault) => {
                 return next();
             }
         });
-        connection.connect((err) => {
-            if (err) {
-                console.error('error connecting: ' + err.stack);
-                setTimeout(connectRaw(MySQL), 2000);
-                reject(err.stack);
-            };
-            db = connection;
-            spinner.succeed(`Connected successfully to ${MySQL.database} MySQL database without SSH`);
-            resolve();
-        });
-        connection.on('error', (err) => {
-            console.log('db error', err);
-            if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-                connectRaw(MySQL);                         // lost due to either server restart, or a
-            } else {                                      // connnection idle timeout (the wait_timeout
-              throw err;                                  // server variable configures this)
+        pool.promise().query('SELECT 1 + 1 as suma').then(([rows, fields]) => {
+            if(rows && rows.length > 0 && rows[0].suma === 2){
+                spinner.succeed(`Connected successfully to ${MySQL.database} MySQL database without SSH`);
+                db = pool;
+                resolve();
+            }
+            else{
+                spinner.fail(`Error on connecting to ${MySQL.database} MySQL database, SELECT 1 + 1 returned ${JSON.stringify(rows)}`);
             }
         });
     });
