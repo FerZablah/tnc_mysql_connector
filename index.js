@@ -69,7 +69,8 @@ const MySQLDefault = {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE_NAME
+    database: process.env.MYSQL_DATABASE_NAME,
+    port: process.env.MYSQL_PORT
 };
 const connectRaw = async (MySQL = MySQLDefault) => {
     const spinner = ora({
@@ -83,6 +84,7 @@ const connectRaw = async (MySQL = MySQLDefault) => {
             host: MySQL.host,
             user: MySQL.user,
             database: MySQL.database,
+            port: MySQL.port ? MySQL.port : 3006,
             password: MySQL.password,
             waitForConnections: true,
             connectionLimit: 10,
